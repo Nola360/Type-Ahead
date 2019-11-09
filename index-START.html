@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    .title {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .title p {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+
+
+<body>
+
+  <div class="title">
+    <h3>JavaScript 30: Day 6</h3>
+    <p>City State Population Search</p>
+  </div>
+  <form class="search-form">
+    <input type="text" class="search" placeholder="Enter City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+    const endpoint =
+      'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+    //How to create a type Ahead
+
+    // 1. create and empty array
+    const cities = [];
+
+    // 2. fetch data -- fetch is an API
+    fetch(endpoint)
+      .then(blob => blob.json())
+      .then(data => cities.push(...data));
+
+    //3. Filter Array into a subset
+    function findMatches(wordToMatch, cities) {
+      return cities.filter(place => {
+        // here we need to figure out if the city or state matches what is searched
+        const regex = new RegExp(wordToMatch, 'gi');
+        return place.city.match(regex) || place.state.match(regex);
+      });
+
+    }
+
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    //4. Create a display function
+    function displayMatches() {
+      const matchArray = findMatches(this.value, cities);
+
+      const html = matchArray.map(place => {
+
+        const regex = new RegExp(this.value, 'gi');
+        //Replace city name variable
+
+        const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+        const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+        return `
+       <li> 
+       <span class="name">${cityName}, ${stateName}</span>
+       <span class="population">${numberWithCommas(place.population)}</span>
+       </li>
+       `;
+        //this will turn an array with multiple items to a big string
+      }).join('');
+      suggestions.innerHTML = html;
+
+      //5. Select input and ul from inspection window
+    }
+    const searchInput = document.querySelector('.search');
+    const suggestions = document.querySelector('.suggestions');
+
+    searchInput.addEventListener('change', displayMatches);
+    //Note *** change events only activate by clicking off input
+    searchInput.addEventListener('keyup', displayMatches);
+
+    //6. Use findMatches function 
+    const matchArray = findMatches(this.value, cities);
+    //7. Go back to #4 displayMatches function
+
+    //8. Format population numbers and add highligh, go to map function & create a regex to replace word that it matches 
+  </script>
+</body>
+
+</html>
